@@ -1,0 +1,12 @@
+% Juuso Narsakka 26.11.2021
+%Computational methods...
+%Task 4 4.14 (S. Linge and H. P. Langtangen, Programming for Computations - MATLAB/Octave: A Gentle Introduction to Numerical Simulations with MATLAB/Octave. 2016.)
+%Reference for code https://github.com/gorzech/lut_cmim2021B.git
+
+
+%% 4.1
+
+hand = [1 2 4 8];
+T = 3;
+dt = 0.1;       % Tested first dt = 1.0, ok
+U_0 = 1.0; 
