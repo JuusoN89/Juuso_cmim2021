@@ -1,55 +1,57 @@
 % Juuso Narsakka 26.11.2021
 %Computational methods...
-%Task 4 4.14 (S. Linge and H. P. Langtangen, Programming for Computations - MATLAB/Octave: A Gentle Introduction to Numerical Simulations with MATLAB/Octave. 2016.)
+%Task 4 2 (piston/slider) (S. Linge and H. P. Langtangen, Programming for Computations - MATLAB/Octave: A Gentle Introduction to Numerical Simulations with MATLAB/Octave. 2016.)
 %Reference for code https://github.com/gorzech/lut_cmim2021B.git
 
 clc; clear all; close all;
 
-% u = [phi_2; d];
-a = 0.1;
-% r = 4;
-b = 0.2;
-w=-1;
-t=linspace(0,5,101);
-phi = pi()/6+w*t;
-% phi = deg2rad(30);
+a = 0.1;    % rod 1
+b = 0.2;    % rod 2
+w=-1;       % Rod 1 angular velocity
+t=linspace(0,1,101);    %time (from,to,steps)
+phi = pi()/6+w*t;   %Starting angle for rod 1
+
+% parameter for loop 
 round=1; 
+theta=[]; 
+u_vec=[];
+theta_avel=[];
+v_vec=[];
 
 for phi=phi(1:1:end)
-tt=t(round)
+tt=t(round);
 % set a reasonable starting point
 u0 = [deg2rad(0); b + a];
 v0 = [0; 1];
 
-% create function handles
+% create function handles for position
 F = @(u) constraint(u, a, b, phi);
 J = @(u) jacobian(u, b);
 
 eps = 1e-9;
-[u, iteration_counter] = NR_method(F, J, u0, eps);
+[u, iteration_counter] = NR_method(F, J, u0, eps); % position calculation
+theta(end+1)=u(1);
+u_vec(end+1)=u(2);
 
+% create function handles for velocity
 F2 = @(v) constraint2(u, v, a, b, w, phi);
 J2 = @(v) jacobian2(u, b);
 
-[v, iteration_counter2] = NR_method_diff(F2, J2, [u0 v0], eps);
+[v, iteration_counter2] = NR_method_diff(F2, J2, v0, eps);   % Velocity calculation
+theta_avel(end+1)=v(1);
+v_vec(end+1)=v(2);
 
-
-plot([0 cos(phi)*a u(2)], [0 sin(phi)*a 0], 'b')
-xlim([-a-b a+b])
-ylim([-a-b a+b])
-legend(['Piston speed = ' num2str(v(2)) 'm/s'])
-% hold off
-pause(0.03)
+%figure for slider
+sliderfigure(phi,a,b,u,v)
+% pause(0.05)
 round=round+1;
-
 end
 
-fprintf('\n\tPiston valid position is for d = %.3g m and theta = %g deg\n\n', ...
-    u(2), rad2deg(u(1)));
-fprintf('\n\tPiston valid velocity is for d = %.3g m/s and theta angular velocity = %g rad/s\n\n', ...
-    v(2), (v(1)));
+%other figures
+pos_vel_figure(theta, theta_avel, u_vec, v_vec, t)
 
-%for position & angle 
+
+%for position & angle functions
 function PP = constraint(u, a, b, phi)
 theta = u(1);
 d = u(2);
